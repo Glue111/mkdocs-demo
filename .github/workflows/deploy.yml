@@ -4,22 +4,16 @@ on:
   push:
     branches: [ main ]
 
-# 关键权限配置，给actions bot页面发布权限
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# 部署环境
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -27,12 +21,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install mkdocs & material主题
+      - name: Install MkDocs
         run: |
-          python -m pip install --upgrade pip
           pip install mkdocs mkdocs-material
 
-      - name: Build mkdocs site
+      - name: Build site
         run: mkdocs build
 
       - name: Upload artifact
@@ -43,6 +36,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
